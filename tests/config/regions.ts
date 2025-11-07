@@ -143,7 +143,7 @@ export const REGIONS: Record<string, RegionConfig> = {
       requiredField: 'C\'est un champ obligatoire.',
       existingAccount: 'Bien que vous ayez indiqué que vous êtes un nouveau client, votre adresse email a déjà été utilisée.',
       enterPassword: 'Ce champ est obligatoire',
-      enterEmailAddress: 'Entrez votre adresse e-mail',
+      enterEmailAddress: 'Entrez votre adresse email',
       noAccountFound: 'Il n\'y a pas de compte associé à cette adresse e-mail',
     },
   },

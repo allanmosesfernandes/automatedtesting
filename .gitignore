@@ -45,3 +45,4 @@ tests/fixtures/auth-states/*.json
 # Build files
 dist/
 build/
+nul

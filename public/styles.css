@@ -673,3 +673,114 @@ body {
         width: 100%;
     }
 }
+
+/* Retry functionality styles */
+.retry-btn {
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: var(--warning-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.retry-btn:hover:not(:disabled) {
+    background-color: #d97706;
+    transform: translateY(-1px);
+}
+
+.retry-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.retry-history {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #f8fafc;
+    border-left: 3px solid var(--warning-color);
+    border-radius: 4px;
+}
+
+.retry-history-header {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.retry-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    margin: 4px 0;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.retry-item.success {
+    border-left: 3px solid var(--success-color);
+}
+
+.retry-item.error {
+    border-left: 3px solid var(--error-color);
+}
+
+.retry-icon {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.retry-item.success .retry-icon {
+    color: var(--success-color);
+}
+
+.retry-item.error .retry-icon {
+    color: var(--error-color);
+}
+
+.retry-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.retry-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.retry-item.success .retry-status {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.retry-item.error .retry-status {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.retry-time {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.spinner-small {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}

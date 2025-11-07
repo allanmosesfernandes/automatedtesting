@@ -206,9 +206,9 @@ function runPlaywrightTest(region, environment, baseUrl) {
                     if (testResult.attachments && testResult.attachments.length > 0) {
                       testResult.attachments.forEach(attachment => {
                         if (attachment.name === 'screenshot' && attachment.path) {
-                          // Convert absolute path to relative path from project root
-                          const projectRoot = path.resolve(__dirname, '..');
-                          let relativePath = path.relative(projectRoot, attachment.path);
+                          // Convert absolute path to relative path from test-results directory
+                          const testResultsDir = path.join(path.resolve(__dirname, '..'), 'test-results');
+                          let relativePath = path.relative(testResultsDir, attachment.path);
                           // Convert Windows backslashes to forward slashes for URLs
                           relativePath = relativePath.replace(/\\/g, '/');
                           test.screenshots.push(relativePath);
@@ -273,6 +273,153 @@ function runPlaywrightTest(region, environment, baseUrl) {
   });
 }
 
+/**
+ * Run a specific test file for a region and environment
+ * @param {string} region - Region code
+ * @param {string} environment - Environment
+ * @param {string} testFile - Specific test file path (e.g., 'auth/signin.spec.ts')
+ * @param {number} retryAttempt - Retry attempt number
+ * @returns {Promise<Object>} Test execution results
+ */
+async function runSingleTest(region, environment, testFile, retryAttempt = 0) {
+  console.log(`\n🔄 Retrying test: ${testFile} for ${region} (${environment}) - Attempt ${retryAttempt}`);
+
+  const baseUrl = getBaseUrl(region, environment);
+  const startTime = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const env = {
+      ...process.env,
+      BASE_URL: baseUrl,
+      TEST_REGION: region,
+      TEST_ENV: environment
+    };
+
+    const npxCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const testPath = path.join('tests/e2e', testFile);
+
+    const playwright = spawn(npxCommand, [
+      'playwright',
+      'test',
+      testPath,
+      '--reporter=json'
+    ], {
+      cwd: path.resolve(__dirname, '..'),
+      env,
+      shell: true
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    playwright.stdout.on('data', (data) => stdout += data.toString());
+    playwright.stderr.on('data', (data) => stderr += data.toString());
+
+    playwright.on('close', (code) => {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      try {
+        let testResults = null;
+        const jsonMatch = stdout.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            testResults = JSON.parse(jsonMatch[0]);
+          } catch (e) {
+            console.error('Failed to parse Playwright JSON output');
+          }
+        }
+
+        const summary = {
+          total: 0,
+          passed: 0,
+          failed: 0,
+          skipped: 0
+        };
+
+        const tests = [];
+
+        if (testResults && testResults.suites) {
+          // Parse results
+          const parseSpecs = (suites) => {
+            suites.forEach(suite => {
+              if (suite.specs) {
+                suite.specs.forEach(spec => {
+                  summary.total++;
+
+                  const test = {
+                    title: spec.title,
+                    file: spec.file || suite.title,
+                    status: 'unknown',
+                    duration: 0,
+                    error: null,
+                    screenshots: []
+                  };
+
+                  if (spec.tests && spec.tests.length > 0) {
+                    const testResult = spec.tests[0].results[0];
+                    test.status = testResult.status;
+                    test.duration = testResult.duration;
+
+                    // Capture screenshots
+                    if (testResult.attachments && testResult.attachments.length > 0) {
+                      testResult.attachments.forEach(attachment => {
+                        if (attachment.name === 'screenshot' && attachment.path) {
+                          const testResultsDir = path.join(path.resolve(__dirname, '..'), 'test-results');
+                          let relativePath = path.relative(testResultsDir, attachment.path);
+                          relativePath = relativePath.replace(/\\/g, '/');
+                          test.screenshots.push(relativePath);
+                        }
+                      });
+                    }
+
+                    if (testResult.status === 'passed') {
+                      summary.passed++;
+                    } else if (testResult.status === 'failed') {
+                      summary.failed++;
+                      test.error = testResult.error?.message || 'Test failed';
+                    } else if (testResult.status === 'skipped') {
+                      summary.skipped++;
+                    }
+                  }
+
+                  tests.push(test);
+                });
+              }
+
+              if (suite.suites) {
+                parseSpecs(suite.suites);
+              }
+            });
+          };
+
+          parseSpecs(testResults.suites);
+        }
+
+        resolve({
+          region,
+          environment,
+          testFile,
+          retryAttempt,
+          timestamp: new Date().toISOString(),
+          duration,
+          success: code === 0,
+          summary,
+          tests
+        });
+
+      } catch (error) {
+        reject(new Error(`Failed to parse retry results: ${error.message}`));
+      }
+    });
+
+    playwright.on('error', (error) => {
+      reject(new Error(`Failed to spawn Playwright for retry: ${error.message}`));
+    });
+  });
+}
+
 module.exports = {
-  runTests
+  runTests,
+  runSingleTest
 };

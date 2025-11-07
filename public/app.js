@@ -389,17 +389,43 @@ function displayDetailedResults(testRuns) {
                     const testStatusClass = test.status === 'passed' ? 'success' : test.status === 'failed' ? 'error' : '';
 
                     html += `
-                        <div class="test-item ${testStatusClass}">
+                        <div class="test-item ${testStatusClass}" data-test-file="${test.file || ''}">
                             <span class="test-status">${testStatusIcon}</span>
                             <div class="test-content">
                                 <span class="test-title">${test.title}</span>
                                 ${test.error ? `<p class="test-error">${test.error}</p>` : ''}
+
+                                ${test.retryHistory && test.retryHistory.length > 0 ? `
+                                    <div class="retry-history">
+                                        <p class="retry-history-header">Retry History:</p>
+                                        ${test.retryHistory.map((retry, idx) => {
+                                            const retryIcon = retry.status === 'passed' ? '✓' : '✗';
+                                            const retryClass = retry.status === 'passed' ? 'success' : 'error';
+                                            const retryTime = new Date(retry.timestamp).toLocaleTimeString();
+                                            return `
+                                                <div class="retry-item ${retryClass}">
+                                                    <span class="retry-icon">${retryIcon}</span>
+                                                    <span class="retry-label">Attempt ${retry.attempt}</span>
+                                                    <span class="retry-status">${retry.status}</span>
+                                                    <span class="retry-time">${retryTime}</span>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
+
+                                ${test.status === 'failed' && (!test.retryHistory || test.retryHistory.length < 3) ? `
+                                    <button class="retry-btn" onclick="retryTest('${run.region}', '${run.environment}', '${test.file}', this.closest('.test-item'))">
+                                        <span class="btn-icon">🔄</span> Retry
+                                    </button>
+                                ` : ''}
+
                                 ${test.screenshots && test.screenshots.length > 0 ? `
                                     <div class="test-screenshots">
                                         ${test.screenshots.map(screenshot => `
                                             <div class="screenshot-container">
-                                                <a href="/${screenshot}" target="_blank">
-                                                    <img src="/${screenshot}" alt="Test screenshot" class="test-screenshot" />
+                                                <a href="/test-results/${screenshot}" target="_blank">
+                                                    <img src="/test-results/${screenshot}" alt="Test screenshot" class="test-screenshot" />
                                                 </a>
                                                 <p class="screenshot-caption">Click to view full size</p>
                                             </div>
@@ -432,4 +458,174 @@ async function downloadResults() {
         console.error('Error downloading results:', error);
         alert('Failed to download results');
     }
+}
+
+/**
+ * Retry a specific failed test
+ */
+async function retryTest(region, environment, testFile, testElement) {
+    if (!currentJobId) return;
+
+    // Disable retry button
+    const retryBtn = testElement.querySelector('.retry-btn');
+    if (retryBtn) {
+        retryBtn.disabled = true;
+        retryBtn.innerHTML = '<span class="spinner-small"></span> Retrying...';
+    }
+
+    try {
+        const response = await fetch('/api/retry-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jobId: currentJobId,
+                region,
+                environment,
+                testFile
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to start retry');
+        }
+
+        const result = await response.json();
+        console.log(`Retry started: ${result.retryJobId}`);
+
+        // Poll for retry completion
+        pollRetryStatus(result.retryJobId, testElement);
+
+    } catch (error) {
+        console.error('Error retrying test:', error);
+        alert(`Failed to retry test: ${error.message}`);
+        if (retryBtn) {
+            retryBtn.disabled = false;
+            retryBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry';
+        }
+    }
+}
+
+/**
+ * Poll retry status until completion
+ */
+async function pollRetryStatus(retryJobId, testElement) {
+    const checkStatus = async () => {
+        try {
+            const response = await fetch(`/api/retry-status/${retryJobId}`);
+            if (!response.ok) return;
+
+            const retryJob = await response.json();
+
+            if (retryJob.status === 'completed') {
+                // Reload full results to show retry history
+                await loadTestResults();
+            } else if (retryJob.status === 'failed') {
+                alert(`Retry failed: ${retryJob.error}`);
+                const retryBtn = testElement.querySelector('.retry-btn');
+                if (retryBtn) {
+                    retryBtn.disabled = false;
+                    retryBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry';
+                }
+            } else {
+                // Still running, check again in 2 seconds
+                setTimeout(checkStatus, 2000);
+            }
+        } catch (error) {
+            console.error('Error checking retry status:', error);
+        }
+    };
+
+    checkStatus();
+}
+
+/**
+ * Retry all failed tests
+ */
+async function retryAllFailed() {
+    if (!currentJobId) return;
+
+    if (!confirm('Retry all failed tests? This may take several minutes.')) {
+        return;
+    }
+
+    const retryBtn = document.querySelector('.retry-all-btn');
+    if (retryBtn) {
+        retryBtn.disabled = true;
+        retryBtn.innerHTML = '<span class="spinner-small"></span> Retrying All...';
+    }
+
+    try {
+        const response = await fetch('/api/retry-all-failed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jobId: currentJobId })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to start retries');
+        }
+
+        const result = await response.json();
+        console.log(`Retrying ${result.retriedTests} failed tests`);
+
+        // Show loading panel
+        showLoadingPanel();
+        document.getElementById('loading-status').textContent =
+            `Retrying ${result.retriedTests} failed tests...`;
+
+        // Poll for completion (check all retry jobs)
+        pollBulkRetryStatus(result.retryJobIds);
+
+    } catch (error) {
+        console.error('Error retrying all failed tests:', error);
+        alert(`Failed to retry tests: ${error.message}`);
+        if (retryBtn) {
+            retryBtn.disabled = false;
+            retryBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry All Failed';
+        }
+    }
+}
+
+/**
+ * Poll status for bulk retry operations
+ */
+async function pollBulkRetryStatus(retryJobIds) {
+    const checkStatuses = async () => {
+        let completed = 0;
+        let failed = 0;
+
+        for (const retryJobId of retryJobIds) {
+            try {
+                const response = await fetch(`/api/retry-status/${retryJobId}`);
+                if (!response.ok) continue;
+
+                const retryJob = await response.json();
+                if (retryJob.status === 'completed') completed++;
+                if (retryJob.status === 'failed') failed++;
+            } catch (error) {
+                console.error(`Error checking retry ${retryJobId}:`, error);
+            }
+        }
+
+        const total = retryJobIds.length;
+        const inProgress = total - completed - failed;
+
+        document.getElementById('progress-text').textContent =
+            `${completed} / ${total} completed`;
+        const progressPercent = (completed / total) * 100;
+        document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+        if (inProgress === 0) {
+            // All done
+            await loadTestResults();
+            showResultsPanel();
+        } else {
+            // Check again in 2 seconds
+            setTimeout(checkStatuses, 2000);
+        }
+    };
+
+    checkStatuses();
 }

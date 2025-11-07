@@ -148,12 +148,16 @@
                 <div class="results-header">
                     <h2>Test Results</h2>
                     <div class="results-actions">
+                        <button onclick="retryAllFailed()" class="btn-secondary retry-all-btn">
+                            <span class="btn-icon">🔄</span>
+                            Retry All Failed
+                        </button>
                         <button onclick="downloadResults()" class="btn-secondary">
                             <span class="btn-icon">⬇️</span>
                             Download JSON
                         </button>
                         <button onclick="resetDashboard()" class="btn-secondary">
-                            <span class="btn-icon">🔄</span>
+                            <span class="btn-icon">▶</span>
                             Run New Tests
                         </button>
                     </div>

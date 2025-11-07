@@ -9,7 +9,9 @@
       "Bash(claude mcp remove:*)",
       "Bash(npx playwright install:*)",
       "Bash(npx playwright test:*)",
-      "WebFetch(domain:jannikweyrich.com)"
+      "WebFetch(domain:jannikweyrich.com)",
+      "Bash(dir /s /b C:UsersAllanFernandesDesktopautomated-testingtest-results 2)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []

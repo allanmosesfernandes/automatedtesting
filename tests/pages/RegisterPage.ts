@@ -61,7 +61,14 @@ export class RegisterPage {
     this.registerButton = page.locator('button[type="submit"], button:has-text("Register"), button:has-text("Sign up")');
     this.googleSignUpButton = page.locator('div.button_google_login').first();
     this.facebookSignUpButton = page.locator('button.button_facebook_login');
-    this.signInLink = page.locator(`a:has-text("${this.region.translations.signIn}"), a:has-text("${this.region.translations.login}")`);
+
+    // For French region, use more specific selector to avoid text matching issues
+    if (this.region.code === 'FR') {
+      this.signInLink = page.locator('a[href*="/login/signin"]').filter({ hasText: 'Se connecter' });
+    } else {
+      this.signInLink = page.locator(`a:has-text("${this.region.translations.signIn}"), a:has-text("${this.region.translations.login}")`);
+    }
+
     this.termsCheckbox = page.locator('input[type="checkbox"][name*="terms"], input[type="checkbox"][name*="agree"]');
     this.newsletterCheckbox = page.locator('input[type="checkbox"][name*="newsletter"]');
     this.errorMessage = page.locator('.error, [role="alert"], .alert-error');
@@ -95,7 +102,11 @@ export class RegisterPage {
           this.region = getRegion(detectedRegion);
 
           // Recreate region-aware locators with new translations
-          (this as any).signInLink = this.page.locator(`a:has-text("${this.region.translations.signIn}"), a:has-text("${this.region.translations.login}")`);
+          if (this.region.code === 'FR') {
+            (this as any).signInLink = this.page.locator('a[href*="/login/signin"]').filter({ hasText: 'Se connecter' });
+          } else {
+            (this as any).signInLink = this.page.locator(`a:has-text("${this.region.translations.signIn}"), a:has-text("${this.region.translations.login}")`);
+          }
           (this as any).headerGreeting = this.page.locator('header p.hidden.lg\\:flex').filter({ hasText: `${this.region.translations.greeting},` });
         }
       }

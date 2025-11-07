@@ -131,8 +131,17 @@ test.describe('Forgot Password Modal Flow', () => {
     // Wait for error message to appear
     await page.waitForTimeout(1000);
 
-    // Check for error message using region-specific text
-    const errorMessage = page.locator(`#login-modal p:has-text("${loginPage.region.errorMessages.enterEmailAddress}")`);
-    await expect(errorMessage).toBeVisible({ timeout: 5000 });
+    // For French region, use the error message locator and verify text
+    if (forgotPasswordPage.region.code === 'FR') {
+      const isErrorVisible = await forgotPasswordPage.isErrorVisible();
+      expect(isErrorVisible).toBeTruthy();
+
+      const errorText = await forgotPasswordPage.getErrorMessage();
+      expect(errorText).toContain(forgotPasswordPage.region.errorMessages.enterEmailAddress);
+    } else {
+      // For other regions, use the original selector
+      const errorMessage = page.locator(`#login-modal p:has-text("${loginPage.region.errorMessages.enterEmailAddress}")`);
+      await expect(errorMessage).toBeVisible({ timeout: 5000 });
+    }
   });
 });
