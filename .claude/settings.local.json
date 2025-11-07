@@ -6,7 +6,10 @@
       "Bash(claude mcp add:*)",
       "Bash(claude mcp list:*)",
       "Bash(node --version:*)",
-      "Bash(claude mcp remove:*)"
+      "Bash(claude mcp remove:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npx playwright test:*)",
+      "WebFetch(domain:jannikweyrich.com)"
     ],
     "deny": [],
     "ask": []

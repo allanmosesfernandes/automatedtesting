@@ -54,7 +54,11 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Use regular chromium instead of headless_shell
+        channel: undefined
+      },
     },
 
     // Uncomment to test on additional browsers

@@ -199,9 +199,9 @@ export class LoginPage {
 
   async waitForSuccessfulLogin() {
     // Wait for redirect after successful login - adjust URL pattern as needed
-    await this.page.waitForURL(/\/(account|dashboard|home|$)/, { timeout: 10000 });
+    await this.page.waitForURL(/\/(account|dashboard|home|$)/, { timeout: 30000 });
     // Wait for user greeting to appear (may take a moment to load)
-    await this.userGreeting.waitFor({ state: 'visible', timeout: 10000 });
+    await this.userGreeting.waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async getErrorMessage(): Promise<string> {

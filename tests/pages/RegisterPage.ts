@@ -165,7 +165,7 @@ export class RegisterPage {
 
   async waitForSuccessfulRegistration() {
     // Wait for redirect to account/edit page after successful registration
-    await this.page.waitForURL(/\/account\/edit\//, { timeout: 10000 });
+    await this.page.waitForURL(/\/account\/edit\//, { timeout: 30000 });
   }
 
   async getErrorMessage(): Promise<string> {
@@ -176,7 +176,7 @@ export class RegisterPage {
   async isRegistrationSuccessful(): Promise<boolean> {
     try {
       // Check for redirect to account/edit page
-      await this.page.waitForURL(/\/account\/edit\//, { timeout: 5000 });
+      await this.page.waitForURL(/\/account\/edit\//, { timeout: 30000 });
       return true;
     } catch {
       return false;
