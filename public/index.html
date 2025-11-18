@@ -1,186 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automated Testing Dashboard - PrinterPix</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation Monitor Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
+  <!-- Header -->
+  <header class="header">
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <img src="printerpix-logo.svg" alt="PrinterPix" class="header-logo">
-                <div class="header-text">
-                    <h1>Automated Testing Dashboard <span class="test-tube-icon">🧪</span></h1>
-                    <p class="subtitle">Login Flow Testing Across Multiple Regions</p>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Test Configuration Panel -->
-            <section id="config-panel" class="panel">
-                <h2>Configure Test Run</h2>
-
-                <!-- Region Selection -->
-                <div class="selection-group">
-                    <h3>Select Regions</h3>
-                    <div class="checkbox-grid">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="US" checked>
-                            <span class="checkbox-text">
-                                <strong>United States (US)</strong>
-                                <small>printerpix.com</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="GB" checked>
-                            <span class="checkbox-text">
-                                <strong>United Kingdom (GB)</strong>
-                                <small>printerpix.co.uk</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="DE" checked>
-                            <span class="checkbox-text">
-                                <strong>Germany (DE)</strong>
-                                <small>printerpix.de</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="FR" checked>
-                            <span class="checkbox-text">
-                                <strong>France (FR)</strong>
-                                <small>printerpix.fr</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="IT" checked>
-                            <span class="checkbox-text">
-                                <strong>Italy (IT)</strong>
-                                <small>printerpix.it</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="ES" checked>
-                            <span class="checkbox-text">
-                                <strong>Spain (ES)</strong>
-                                <small>printerpix.es</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="region" value="NL" checked>
-                            <span class="checkbox-text">
-                                <strong>Netherlands (NL)</strong>
-                                <small>printerpix.nl</small>
-                            </span>
-                        </label>
-                    </div>
-                    <div class="selection-actions">
-                        <button type="button" onclick="selectAllRegions()" class="btn-secondary">Select All</button>
-                        <button type="button" onclick="deselectAllRegions()" class="btn-secondary">Deselect All</button>
-                    </div>
-                </div>
-
-                <!-- Environment Selection -->
-                <div class="selection-group">
-                    <h3>Select Environments</h3>
-                    <div class="checkbox-grid">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="environment" value="qa" checked>
-                            <span class="checkbox-text">
-                                <strong>QA Environment</strong>
-                                <small>qa.{domain}</small>
-                            </span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="environment" value="live" checked>
-                            <span class="checkbox-text">
-                                <strong>Production (Live)</strong>
-                                <small>www.{domain}</small>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Test Summary -->
-                <div class="test-summary" id="test-summary">
-                    <p>Loading selection...</p>
-                </div>
-
-                <!-- Run Tests Button -->
-                <div class="action-section">
-                    <button id="run-tests-btn" onclick="runTests()" class="btn-primary">
-                        <span class="btn-icon green-play">▶</span>
-                        Run Tests
-                    </button>
-                </div>
-            </section>
-
-            <!-- Loading Panel (Hidden by default) -->
-            <section id="loading-panel" class="panel" style="display: none;">
-                <div class="loading-container">
-                    <div class="spinner"></div>
-                    <h2>Running Tests...</h2>
-                    <p class="loading-status" id="loading-status">Initializing test execution...</p>
-
-                    <!-- Progress Bar -->
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                        <p class="progress-text" id="progress-text">0 / 0 completed</p>
-                    </div>
-
-                    <!-- Trivia Message -->
-                    <div class="trivia-container">
-                        <p class="trivia-label">💡 Did you know?</p>
-                        <p class="trivia-message" id="trivia-message">Loading trivia...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Results Panel (Hidden by default) -->
-            <section id="results-panel" class="panel" style="display: none;">
-                <div class="results-header">
-                    <h2>Test Results</h2>
-                    <div class="results-actions">
-                        <button onclick="retryAllFailed()" class="btn-secondary retry-all-btn">
-                            <span class="btn-icon">🔄</span>
-                            Retry All Failed
-                        </button>
-                        <button onclick="downloadResults()" class="btn-secondary">
-                            <span class="btn-icon">⬇️</span>
-                            Download JSON
-                        </button>
-                        <button onclick="resetDashboard()" class="btn-secondary">
-                            <span class="btn-icon">▶</span>
-                            Run New Tests
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="summary-cards" id="summary-cards">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-
-                <!-- Detailed Results -->
-                <div class="results-details" id="results-details">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>&copy; 2024 PrinterPix Internal Tools | Automated Testing Dashboard</p>
-        </footer>
+      <h1>🔍 Navigation Monitor Dashboard</h1>
+      <p>Real-time monitoring of PrinterPix navigation links</p>
     </div>
+  </header>
 
-    <script src="app.js"></script>
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Control Panel -->
+    <section class="control-panel">
+      <h2>Control Panel</h2>
+      <div class="controls">
+        <div class="control-group">
+          <label for="duration-select">Test Duration:</label>
+          <select id="duration-select">
+            <option value="1">1 minute</option>
+            <option value="5" selected>5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="custom">Custom...</option>
+          </select>
+          <input type="number" id="custom-duration" placeholder="Minutes" min="1" max="120" style="display: none;">
+        </div>
+
+        <div class="control-group">
+          <label for="environment-select">Environment:</label>
+          <select id="environment-select">
+            <option value="qa" selected>QA (qa.printerpix.co.uk)</option>
+            <option value="prod">Production (www.printerpix.co.uk)</option>
+          </select>
+        </div>
+
+        <div class="control-buttons">
+          <button id="start-btn" class="btn btn-primary">
+            <span>▶</span> Start Test
+          </button>
+          <button id="stop-btn" class="btn btn-danger" disabled>
+            <span>⏹</span> Stop Test
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Panel -->
+    <section class="status-panel">
+      <h2>Test Status</h2>
+      <div class="status-grid">
+        <div class="status-card">
+          <div class="status-label">Status</div>
+          <div id="test-status" class="status-value status-idle">Idle</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Environment</div>
+          <div id="current-environment" class="status-value">-</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Elapsed Time</div>
+          <div id="elapsed-time" class="status-value">0:00</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Remaining Time</div>
+          <div id="remaining-time" class="status-value">-</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Current Link</div>
+          <div id="current-link" class="status-value">-</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics Panel -->
+    <section class="metrics-panel">
+      <h2>Test Metrics</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="total-clicks">0</div>
+          <div class="metric-label">Total Clicks</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="successful-clicks">0</div>
+          <div class="metric-label">Successful</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="failed-clicks">0</div>
+          <div class="metric-label">Failed</div>
+        </div>
+        <div class="metric-card metric-card-highlight">
+          <div class="metric-value" id="success-rate">0.0%</div>
+          <div class="metric-label">Success Rate</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Failures -->
+    <section class="failures-panel">
+      <h2>Recent Failures</h2>
+      <div id="failures-container" class="failures-container">
+        <p class="empty-state">No failures yet</p>
+      </div>
+    </section>
+
+    <!-- Failure Screenshots Gallery -->
+    <section class="screenshots-panel">
+      <h2>Failure Screenshots</h2>
+      <div id="screenshots-gallery" class="screenshots-gallery">
+        <p class="empty-state">No screenshots available</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Navigation Monitor Dashboard | Built with Express + Socket.IO</p>
+    </div>
+  </footer>
+
+  <!-- Screenshot Modal -->
+  <div id="screenshot-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <img id="modal-image" src="" alt="Screenshot">
+      <p id="modal-caption"></p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/realtime.js"></script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>

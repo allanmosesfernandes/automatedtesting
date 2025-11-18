@@ -1,0 +1,77 @@
+{
+  "totalLinks": 5088,
+  "numChunks": 10,
+  "chunkSize": 509,
+  "chunks": [
+    {
+      "chunkId": 1,
+      "file": "links-chunk-1.json",
+      "startIndex": 1,
+      "endIndex": 509,
+      "count": 509
+    },
+    {
+      "chunkId": 2,
+      "file": "links-chunk-2.json",
+      "startIndex": 510,
+      "endIndex": 1018,
+      "count": 509
+    },
+    {
+      "chunkId": 3,
+      "file": "links-chunk-3.json",
+      "startIndex": 1019,
+      "endIndex": 1527,
+      "count": 509
+    },
+    {
+      "chunkId": 4,
+      "file": "links-chunk-4.json",
+      "startIndex": 1528,
+      "endIndex": 2036,
+      "count": 509
+    },
+    {
+      "chunkId": 5,
+      "file": "links-chunk-5.json",
+      "startIndex": 2037,
+      "endIndex": 2545,
+      "count": 509
+    },
+    {
+      "chunkId": 6,
+      "file": "links-chunk-6.json",
+      "startIndex": 2546,
+      "endIndex": 3054,
+      "count": 509
+    },
+    {
+      "chunkId": 7,
+      "file": "links-chunk-7.json",
+      "startIndex": 3055,
+      "endIndex": 3563,
+      "count": 509
+    },
+    {
+      "chunkId": 8,
+      "file": "links-chunk-8.json",
+      "startIndex": 3564,
+      "endIndex": 4072,
+      "count": 509
+    },
+    {
+      "chunkId": 9,
+      "file": "links-chunk-9.json",
+      "startIndex": 4073,
+      "endIndex": 4581,
+      "count": 509
+    },
+    {
+      "chunkId": 10,
+      "file": "links-chunk-10.json",
+      "startIndex": 4582,
+      "endIndex": 5088,
+      "count": 507
+    }
+  ]
+}

@@ -29,6 +29,9 @@ export default defineConfig({
     ['list']
   ],
 
+  /* Test timeout - increased for long-running printbox tests */
+  timeout: 120000, // 2 minutes per test
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -47,7 +50,7 @@ export default defineConfig({
     actionTimeout: 15000,
 
     /* Navigation timeout */
-    navigationTimeout: 30000,
+    navigationTimeout: 45000, // Increased for designer page
   },
 
   /* Configure projects for major browsers */
@@ -57,7 +60,15 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // Use regular chromium instead of headless_shell
-        channel: undefined
+        channel: undefined,
+        // Anti-detection browser arguments
+        launchOptions: {
+          args: [
+            '--disable-blink-features=AutomationControlled',
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-dev-shm-usage',
+          ],
+        },
       },
     },
 
