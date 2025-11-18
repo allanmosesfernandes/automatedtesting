@@ -288,9 +288,17 @@ export function loadLinks(filePath: string, start: number, size: number): string
     // Skip the first element if it's "link"
     const links = allLinks[0] === 'link' ? allLinks.slice(1) : allLinks;
 
-    // Get the batch
-    const batchLinks = links.slice(start - 1, start - 1 + size);
+    // If loading from a chunk file, load ALL links (don't slice)
+    // Chunk files are pre-split and should be loaded in full
+    const isChunkFile = filePath.includes('chunks/links-chunk-');
 
+    if (isChunkFile) {
+      console.log(`Loaded ${links.length} links from chunk file: ${filePath}`);
+      return links;
+    }
+
+    // For non-chunk files (like final.json), use batch slicing
+    const batchLinks = links.slice(start - 1, start - 1 + size);
     console.log(`Loaded ${batchLinks.length} links from ${filePath} (${start} to ${start + batchLinks.length - 1})`);
 
     return batchLinks;

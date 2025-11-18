@@ -38,7 +38,11 @@
       "Bash(del \"C:\\Users\\AllanFernandes\\Desktop\\automated-testing\\tests\\e2e\\printbox\\baby-photo-album-flow.spec.ts\")",
       "Bash(set:*)",
       "Bash(node scripts/split-links.js:*)",
-      "Bash(node scripts/create-chunk-runners.js:*)"
+      "Bash(node scripts/create-chunk-runners.js:*)",
+      "Bash(python:*)",
+      "Bash(node -p \"const fs=require(''fs''); const final=JSON.parse(fs.readFileSync(''final.json'')); const allChunkLinks=[]; [1,2,3,4,5,6,7,8,9,10].forEach(i => { const data=JSON.parse(fs.readFileSync(''test-data/chunks/links-chunk-''+i+''.json'')); allChunkLinks.push(...data); }); const finalSet = new Set(final); const chunkSet = new Set(allChunkLinks); const inFinalNotInChunks = final.filter(link => chunkSet.has(link) === false); ''Links in final.json but not in chunks: ''+inFinalNotInChunks.length;\")",
+      "Bash(del /Q \"test-results\\printbox\\reports\\*.*\")",
+      "Bash(CHUNK_FILE=test-data/chunks/links-chunk-1.json CHUNK_ID=1 npx playwright test:*)"
     ],
     "deny": [],
     "ask": []

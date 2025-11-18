@@ -268,87 +268,131 @@ test.describe('Printbox Links Validator', () => {
     console.log(`Success Rate: ${successRate}%`);
     console.log('='.repeat(80));
 
-    // Save detailed report
-    const report = {
-      summary: {
-        total: testResults.length,
-        passed,
-        failed,
-        successRate: parseFloat(successRate),
-        timestamp: new Date().toISOString(),
-        linksFile: config.paths.linksFile,
-        chunkId: process.env.CHUNK_ID || 'unknown'
-      },
-      passedLinks: testResults
-        .filter(r => r.status === 'passed')
-        .map(r => ({
-          url: r.url,
-          duration: r.duration
-        })),
-      failedLinks: testResults
-        .filter(r => r.status === 'failed')
-        .map(r => ({
-          url: r.url,
-          error: r.error,
-          checkpoint: r.checkpoint,
-          duration: r.duration
-        })),
-      allResults: testResults
-    };
-
     // Ensure reports directory exists
-    const reportsDir = path.dirname(config.paths.reportsDir);
     if (!fs.existsSync(config.paths.reportsDir)) {
       fs.mkdirSync(config.paths.reportsDir, { recursive: true });
     }
 
-    // Generate timestamp for unique report naming
-    const timestamp = Date.now();
+    // Get chunk ID for naming
     const chunkId = process.env.CHUNK_ID || 'unknown';
-    const batchStart = config.batchStart;
-    const batchSize = config.batchSize;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-    // Create descriptive filename: printbox-report-{start}-{size}-{timestamp}
-    const reportPrefix = `printbox-report-${batchStart}-${batchSize}-${timestamp}`;
+    // Generate HTML Report
+    const htmlReport = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Printbox Test Report - Chunk ${chunkId}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; border-bottom: 3px solid #4CAF50; padding-bottom: 10px; }
+    .summary { background: #e8f5e9; padding: 20px; border-radius: 5px; margin: 20px 0; }
+    .summary h2 { margin-top: 0; color: #2e7d32; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0; }
+    .stat { text-align: center; padding: 15px; background: white; border-radius: 5px; }
+    .stat-value { font-size: 32px; font-weight: bold; }
+    .stat-label { color: #666; font-size: 14px; }
+    .pass { color: #4CAF50; }
+    .fail { color: #f44336; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    thead { background: #f5f5f5; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { font-weight: bold; color: #333; }
+    .status-pass { background: #c8e6c9; color: #2e7d32; padding: 5px 10px; border-radius: 3px; font-weight: bold; }
+    .status-fail { background: #ffcdd2; color: #c62828; padding: 5px 10px; border-radius: 3px; font-weight: bold; }
+    .url-cell { max-width: 400px; word-wrap: break-word; font-size: 12px; }
+    .error-cell { color: #c62828; font-size: 12px; }
+    .duration-cell { color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Printbox Test Report - Chunk ${chunkId}</h1>
 
-    // Save JSON report (with timestamp)
-    const reportPath = path.join(config.paths.reportsDir, `${reportPrefix}.json`);
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    console.log(`\nReport saved: ${reportPath}`);
+    <div class="summary">
+      <h2>Test Summary</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">${testResults.length}</div>
+          <div class="stat-label">Total Tested</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value pass">${passed}</div>
+          <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value fail">${failed}</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${successRate}%</div>
+          <div class="stat-label">Success Rate</div>
+        </div>
+      </div>
+      <p><strong>Timestamp:</strong> ${timestamp}</p>
+      <p><strong>Chunk ID:</strong> ${chunkId}</p>
+    </div>
 
-    // Also save as latest report (overwrite each time)
-    const latestReportPath = path.join(config.paths.reportsDir, 'test-report.json');
-    fs.writeFileSync(latestReportPath, JSON.stringify(report, null, 2));
-    console.log(`Latest report: ${latestReportPath}`);
+    <h2>Test Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Status</th>
+          <th>URL</th>
+          <th>Duration</th>
+          <th>Error Details</th>
+        </tr>
+      </thead>
+      <tbody>
+${testResults.map((result, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><span class="status-${result.status === 'passed' ? 'pass' : 'fail'}">${result.status === 'passed' ? 'PASS' : 'FAIL'}</span></td>
+          <td class="url-cell">${result.url}</td>
+          <td class="duration-cell">${result.duration}ms</td>
+          <td class="error-cell">${result.error || '-'}</td>
+        </tr>
+`).join('')}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>`;
 
-    // Save simple failed links list
-    if (report.failedLinks.length > 0) {
-      const failedLinksPath = path.join(config.paths.reportsDir, `${reportPrefix}-failed.txt`);
-      const failedLinksText = report.failedLinks
-        .map(link => `${link.url}\n  Error: ${link.error}\n  Checkpoint: ${link.checkpoint}\n`)
-        .join('\n');
-      fs.writeFileSync(failedLinksPath, failedLinksText);
-      console.log(`Failed links saved: ${failedLinksPath}`);
+    // Save HTML report
+    const htmlPath = path.join(config.paths.reportsDir, `chunk-${chunkId}-report.html`);
+    fs.writeFileSync(htmlPath, htmlReport);
+    console.log(`\nHTML Report saved: ${htmlPath}`);
 
-      // Also save as latest failed links
-      const latestFailedPath = path.join(config.paths.reportsDir, 'failed-links.txt');
-      fs.writeFileSync(latestFailedPath, failedLinksText);
-    }
+    // Generate simple text results file
+    const textResults = `PRINTBOX TEST RESULTS - CHUNK ${chunkId}
+${'='.repeat(80)}
 
-    // Save simple passed links list
-    const passedLinks = testResults.filter(r => r.status === 'passed');
-    if (passedLinks.length > 0) {
-      const passedLinksPath = path.join(config.paths.reportsDir, `${reportPrefix}-passed.txt`);
-      const passedLinksText = passedLinks
-        .map(link => `${link.url}\n  Duration: ${link.duration}ms\n`)
-        .join('\n');
-      fs.writeFileSync(passedLinksPath, passedLinksText);
-      console.log(`Passed links saved: ${passedLinksPath}`);
+SUMMARY:
+Total Tested: ${testResults.length}
+Passed: ${passed}
+Failed: ${failed}
+Success Rate: ${successRate}%
+Timestamp: ${timestamp}
 
-      // Also save as latest passed links
-      const latestPassedPath = path.join(config.paths.reportsDir, 'passed-links.txt');
-      fs.writeFileSync(latestPassedPath, passedLinksText);
-    }
+${'='.repeat(80)}
+
+PASSED LINKS (${passed}):
+${testResults.filter(r => r.status === 'passed').map((r, i) => `${i + 1}. ${r.url} (${r.duration}ms)`).join('\n')}
+
+${'='.repeat(80)}
+
+FAILED LINKS (${failed}):
+${testResults.filter(r => r.status === 'failed').map((r, i) => `${i + 1}. ${r.url}\n   Error: ${r.error}\n   Checkpoint: ${r.checkpoint}\n   Duration: ${r.duration}ms`).join('\n\n')}
+
+${'='.repeat(80)}
+`;
+
+    // Save text results
+    const textPath = path.join(config.paths.reportsDir, `chunk-${chunkId}-results.txt`);
+    fs.writeFileSync(textPath, textResults);
+    console.log(`Text Results saved: ${textPath}`);
 
     console.log('='.repeat(80) + '\n');
   });
