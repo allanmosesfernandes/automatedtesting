@@ -1,0 +1,76 @@
+{
+  "totalUrls": 5088,
+  "totalBatches": 10,
+  "batches": [
+    {
+      "batchNumber": 1,
+      "startIndex": 1,
+      "endIndex": 509,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 2,
+      "startIndex": 510,
+      "endIndex": 1018,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 3,
+      "startIndex": 1019,
+      "endIndex": 1527,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 4,
+      "startIndex": 1528,
+      "endIndex": 2036,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 5,
+      "startIndex": 2037,
+      "endIndex": 2545,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 6,
+      "startIndex": 2546,
+      "endIndex": 3054,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 7,
+      "startIndex": 3055,
+      "endIndex": 3563,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 8,
+      "startIndex": 3564,
+      "endIndex": 4072,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 9,
+      "startIndex": 4073,
+      "endIndex": 4581,
+      "urlCount": 509,
+      "estimatedTime": "2.3 hours"
+    },
+    {
+      "batchNumber": 10,
+      "startIndex": 4582,
+      "endIndex": 5088,
+      "urlCount": 507,
+      "estimatedTime": "2.3 hours"
+    }
+  ]
+}

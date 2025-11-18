@@ -42,7 +42,13 @@
       "Bash(python:*)",
       "Bash(node -p \"const fs=require(''fs''); const final=JSON.parse(fs.readFileSync(''final.json'')); const allChunkLinks=[]; [1,2,3,4,5,6,7,8,9,10].forEach(i => { const data=JSON.parse(fs.readFileSync(''test-data/chunks/links-chunk-''+i+''.json'')); allChunkLinks.push(...data); }); const finalSet = new Set(final); const chunkSet = new Set(allChunkLinks); const inFinalNotInChunks = final.filter(link => chunkSet.has(link) === false); ''Links in final.json but not in chunks: ''+inFinalNotInChunks.length;\")",
       "Bash(del /Q \"test-results\\printbox\\reports\\*.*\")",
-      "Bash(CHUNK_FILE=test-data/chunks/links-chunk-1.json CHUNK_ID=1 npx playwright test:*)"
+      "Bash(CHUNK_FILE=test-data/chunks/links-chunk-1.json CHUNK_ID=1 npx playwright test:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx playwright:*)",
+      "Bash(start \"test-results\\printbox-optimized\\reports\\optimized-test-report-2025-11-18T17-07-02-308Z.html\")",
+      "Bash(start \"test-results\\printbox-optimized\\reports\\optimized-test-report-2025-11-18T17-13-15-663Z.html\")",
+      "Bash(start \"test-results\\printbox-optimized\\reports\\optimized-test-report-2025-11-18T17-21-42-674Z.html\")",
+      "Bash(start \"test-results\\printbox-optimized\\reports\\optimized-test-report-2025-11-18T17-42-25-929Z.html\")"
     ],
     "deny": [],
     "ask": []
