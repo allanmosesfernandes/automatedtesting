@@ -44,8 +44,7 @@ const TEST_DURATION_MINUTES = parseInt(process.env.TEST_DURATION_MINUTES || '5')
 const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
 
 const ENVIRONMENTS = [
-  { name: 'QA UK', baseUrl: 'https://qa.printerpix.co.uk' },
-  { name: 'Live US', baseUrl: 'https://www.printerpix.com' }
+  { name: 'QA UK', baseUrl: 'https://qa.printerpix.co.uk' }
 ];
 
 // Report directories

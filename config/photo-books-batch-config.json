@@ -1,0 +1,78 @@
+{
+  "totalLinks": 500,
+  "batchSize": 50,
+  "totalBatches": 10,
+  "estimatedTimePerLink": "60s",
+  "batches": [
+    {
+      "batchNumber": 1,
+      "startIndex": 0,
+      "endIndex": 49,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 2,
+      "startIndex": 50,
+      "endIndex": 99,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 3,
+      "startIndex": 100,
+      "endIndex": 149,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 4,
+      "startIndex": 150,
+      "endIndex": 199,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 5,
+      "startIndex": 200,
+      "endIndex": 249,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 6,
+      "startIndex": 250,
+      "endIndex": 299,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 7,
+      "startIndex": 300,
+      "endIndex": 349,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 8,
+      "startIndex": 350,
+      "endIndex": 399,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 9,
+      "startIndex": 400,
+      "endIndex": 449,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    },
+    {
+      "batchNumber": 10,
+      "startIndex": 450,
+      "endIndex": 499,
+      "urlCount": 50,
+      "estimatedTime": "50 minutes"
+    }
+  ]
+}

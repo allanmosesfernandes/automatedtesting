@@ -5,10 +5,8 @@ echo ========================================
 echo.
 echo This will run the navigation test for 14 hours on:
 echo   1. QA UK (qa.printerpix.co.uk)
-echo   2. Live US (www.printerpix.com)
 echo.
-echo BOTH ENVIRONMENTS RUN IN PARALLEL!
-echo TOTAL TIME: 14 hours (both run simultaneously)
+echo TOTAL TIME: 14 hours
 echo.
 echo ========================================
 echo INSTRUCTIONS:
@@ -29,9 +27,9 @@ REM Set test duration to 840 minutes (14 hours)
 set TEST_DURATION_MINUTES=840
 
 echo.
-echo Starting navigation test for 14 hours (both environments in parallel)...
+echo Starting navigation test for 14 hours (QA UK only)...
 echo.
-npx playwright test tests/e2e/navigation/navigation-monitor.spec.ts --workers=2
+npx playwright test tests/e2e/navigation/navigation-monitor.spec.ts --workers=1
 
 echo.
 echo ========================================
