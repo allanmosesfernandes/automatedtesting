@@ -53,7 +53,7 @@ export function getApiUrl(regionCode: string, environment: Environment = 'qa'): 
  */
 function extractRegionFromUrl(url: string): string | null {
   // Match domain patterns like printerpix.com, printerpix.de, printerpix.es, etc.
-  const match = url.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl)/);
+  const match = url.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl|in|ae)/);
   if (!match) return null;
 
   const domainMap: Record<string, string> = {
@@ -64,6 +64,8 @@ function extractRegionFromUrl(url: string): string | null {
     'it': 'IT',
     'es': 'ES',
     'nl': 'NL',
+    'in': 'IN',
+    'ae': 'AE',
   };
 
   return domainMap[match[1]] || null;

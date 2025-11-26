@@ -1,0 +1,41 @@
+{
+  "region": "GB",
+  "baseUrl": "https://www.printerpix.co.uk",
+  "products": [
+    {
+      "id": "pb-hardcover-large",
+      "name": "Large Hardcover Photo Book",
+      "category": "photo-books",
+      "url": "/photo-books/large-hardcover-photo-book/",
+      "hasDesigner": true
+    },
+    {
+      "id": "pb-hardcover-medium",
+      "name": "Medium Hardcover Photo Book",
+      "category": "photo-books",
+      "url": "/photo-books/medium-hardcover-photo-book/",
+      "hasDesigner": true
+    },
+    {
+      "id": "pb-softcover",
+      "name": "Softcover Photo Book",
+      "category": "photo-books",
+      "url": "/photo-books/softcover-photo-book/",
+      "hasDesigner": true
+    },
+    {
+      "id": "pb-layflat",
+      "name": "Layflat Photo Book",
+      "category": "photo-books",
+      "url": "/photo-books/layflat-photo-book/",
+      "hasDesigner": true
+    },
+    {
+      "id": "pb-mini",
+      "name": "Mini Photo Book",
+      "category": "photo-books",
+      "url": "/photo-books/mini-photo-book/",
+      "hasDesigner": true
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "credentials": {
+    "email": "allan.fernandes@printerpix.co.uk",
+    "password": "All@in1234*"
+  },
+  "testAddresses": {
+    "GB": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+44 7700 900000",
+      "addressLine1": "123 Test Street",
+      "addressLine2": "Floor 2",
+      "city": "London",
+      "state": "Greater London",
+      "postalCode": "SW1A 1AA",
+      "country": "United Kingdom"
+    },
+    "US": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+1 555 123 4567",
+      "addressLine1": "123 Test Avenue",
+      "addressLine2": "Suite 100",
+      "city": "New York",
+      "state": "NY",
+      "postalCode": "10001",
+      "country": "United States"
+    },
+    "DE": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+49 30 12345678",
+      "addressLine1": "Teststraße 123",
+      "addressLine2": "Etage 2",
+      "city": "Berlin",
+      "state": "Berlin",
+      "postalCode": "10115",
+      "country": "Germany"
+    },
+    "FR": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+33 1 23 45 67 89",
+      "addressLine1": "123 Rue de Test",
+      "addressLine2": "Étage 2",
+      "city": "Paris",
+      "state": "Île-de-France",
+      "postalCode": "75001",
+      "country": "France"
+    },
+    "ES": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+34 91 123 4567",
+      "addressLine1": "Calle Test 123",
+      "addressLine2": "Piso 2",
+      "city": "Madrid",
+      "state": "Madrid",
+      "postalCode": "28001",
+      "country": "Spain"
+    },
+    "IT": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+39 02 1234567",
+      "addressLine1": "Via Test 123",
+      "addressLine2": "Piano 2",
+      "city": "Milan",
+      "state": "Lombardy",
+      "postalCode": "20121",
+      "country": "Italy"
+    },
+    "NL": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+31 20 123 4567",
+      "addressLine1": "Teststraat 123",
+      "addressLine2": "Verdieping 2",
+      "city": "Amsterdam",
+      "state": "North Holland",
+      "postalCode": "1012 AB",
+      "country": "Netherlands"
+    },
+    "IN": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+91 98765 43210",
+      "addressLine1": "123 Test Road",
+      "addressLine2": "Near Landmark",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "postalCode": "400001",
+      "country": "India"
+    },
+    "AE": {
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "allan.fernandes@printerpix.co.uk",
+      "phone": "+971 50 123 4567",
+      "addressLine1": "123 Test Street",
+      "addressLine2": "Building A",
+      "city": "Dubai",
+      "state": "Dubai",
+      "postalCode": "00000",
+      "country": "United Arab Emirates"
+    }
+  }
+}

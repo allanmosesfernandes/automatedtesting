@@ -18,7 +18,15 @@
     "test:printbox:headed": "playwright test tests/e2e/printbox/printbox-links-validator.spec.ts --headed",
     "split-links": "node scripts/split-links.js",
     "test:parallel": "node scripts/run-parallel-tests.js",
-    "test:chunk": "playwright test tests/e2e/printbox/printbox-links-validator.spec.ts"
+    "test:chunk": "playwright test tests/e2e/printbox/printbox-links-validator.spec.ts",
+    "test:cart:setup:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/session-setup.spec.ts --headed",
+    "test:cart:setup:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/session-setup.spec.ts --headed",
+    "test:cart:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts --headed",
+    "test:cart:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts --headed",
+    "test:cart:gb:headless": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts",
+    "test:cart:us:headless": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts",
+    "test:login:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/login-and-navigate.spec.ts --headed",
+    "test:login:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/login-and-navigate.spec.ts --headed"
   },
   "keywords": [
     "playwright",

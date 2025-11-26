@@ -32,7 +32,7 @@ export class LoginPage {
 
       if (pageUrl && pageUrl !== 'about:blank') {
         // Extract region from URL domain
-        const match = pageUrl.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl)/);
+        const match = pageUrl.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl|in|ae)/);
         if (match) {
           const domainMap: Record<string, string> = {
             'com': 'US',
@@ -42,6 +42,8 @@ export class LoginPage {
             'it': 'IT',
             'es': 'ES',
             'nl': 'NL',
+            'in': 'IN',
+            'ae': 'AE',
           };
           detectedRegion = domainMap[match[1]] || null;
         }
@@ -75,7 +77,7 @@ export class LoginPage {
   private updateRegionFromUrl() {
     const pageUrl = this.page.url();
     if (pageUrl && pageUrl !== 'about:blank') {
-      const match = pageUrl.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl)/);
+      const match = pageUrl.match(/printerpix\.(com|co\.uk|de|fr|it|es|nl|in|ae)/);
       if (match) {
         const domainMap: Record<string, string> = {
           'com': 'US',
@@ -85,6 +87,8 @@ export class LoginPage {
           'it': 'IT',
           'es': 'ES',
           'nl': 'NL',
+          'in': 'IN',
+          'ae': 'AE',
         };
         const detectedRegion = domainMap[match[1]];
         if (detectedRegion && detectedRegion !== this.region.code) {

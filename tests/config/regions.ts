@@ -231,6 +231,62 @@ export const REGIONS: Record<string, RegionConfig> = {
       noAccountFound: 'Er is geen account gekoppeld aan dit e-mailadres',
     },
   },
+  IN: {
+    code: 'IN',
+    name: 'India',
+    domain: 'printerpix.in',
+    locale: 'en-IN',
+    currency: 'INR',
+    siteCode: 20, // TBD - confirm actual site code
+    translations: {
+      greeting: 'Hi',
+      signIn: 'Sign in',
+      signOut: 'Sign out',
+      signUp: 'Sign Up',
+      register: 'Register',
+      login: 'Login',
+      account: 'Account',
+      forgotPassword: 'Forgot Password',
+      returnToSignIn: 'Return to Sign In',
+    },
+    errorMessages: {
+      invalidCredentials: 'Username or password incorrect',
+      invalidEmail: 'Please enter a valid email address.',
+      requiredField: 'This is required field.',
+      existingAccount: 'An account with this email already exists',
+      enterPassword: 'Enter your password',
+      enterEmailAddress: 'Enter your email address',
+      noAccountFound: 'There is no account associated with this email address',
+    },
+  },
+  AE: {
+    code: 'AE',
+    name: 'United Arab Emirates',
+    domain: 'printerpix.ae',
+    locale: 'en-AE',
+    currency: 'AED',
+    siteCode: 21, // TBD - confirm actual site code
+    translations: {
+      greeting: 'Hi',
+      signIn: 'Sign in',
+      signOut: 'Sign out',
+      signUp: 'Sign Up',
+      register: 'Register',
+      login: 'Login',
+      account: 'Account',
+      forgotPassword: 'Forgot Password',
+      returnToSignIn: 'Return to Sign In',
+    },
+    errorMessages: {
+      invalidCredentials: 'Username or password incorrect',
+      invalidEmail: 'Please enter a valid email address.',
+      requiredField: 'This is required field.',
+      existingAccount: 'An account with this email already exists',
+      enterPassword: 'Enter your password',
+      enterEmailAddress: 'Enter your email address',
+      noAccountFound: 'There is no account associated with this email address',
+    },
+  },
 };
 
 /**
