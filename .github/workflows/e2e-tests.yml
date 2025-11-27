@@ -20,7 +20,7 @@ jobs:
   e2e-tests:
     name: ${{ matrix.product }} - ${{ matrix.region }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
@@ -55,12 +55,55 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E tests
+      - name: Run E2E tests continuously (55 min loop)
         id: test
         run: |
-          TEST_REGION=${{ matrix.region }} npx playwright test \
-            tests/e2e/cart-checkout/${{ matrix.test_file }} \
-            --reporter=list,json
+          END_TIME=$(($(date +%s) + 3300))  # 55 minutes from now
+          ITERATION=1
+          FAILURES=0
+
+          echo "Starting continuous test loop until $(date -d @$END_TIME)"
+
+          while [ $(date +%s) -lt $END_TIME ]; do
+            echo ""
+            echo "=========================================="
+            echo "=== Iteration $ITERATION at $(date) ==="
+            echo "=========================================="
+
+            if ! TEST_REGION=${{ matrix.region }} npx playwright test \
+              tests/e2e/cart-checkout/${{ matrix.test_file }} \
+              --reporter=list; then
+              FAILURES=$((FAILURES + 1))
+              echo ">>> Iteration $ITERATION FAILED"
+            else
+              echo ">>> Iteration $ITERATION PASSED"
+            fi
+
+            ITERATION=$((ITERATION + 1))
+
+            # Check if we have time for another iteration
+            REMAINING=$((END_TIME - $(date +%s)))
+            if [ $REMAINING -lt 60 ]; then
+              echo "Less than 1 minute remaining, ending loop"
+              break
+            fi
+
+            echo "Waiting 10 seconds before next iteration..."
+            sleep 10
+          done
+
+          echo ""
+          echo "=========================================="
+          echo "=== SUMMARY ==="
+          echo "Completed $((ITERATION - 1)) iterations"
+          echo "Failures: $FAILURES"
+          echo "=========================================="
+
+          # Fail job if ANY iteration failed
+          if [ $FAILURES -gt 0 ]; then
+            echo "Job failed: $FAILURES iteration(s) had failures"
+            exit 1
+          fi
         continue-on-error: true
         env:
           CI: true
