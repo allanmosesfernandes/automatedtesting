@@ -39,8 +39,8 @@ const PHOTO_BOOKS_PATH = '/photo-books-q/';
 const RESULTS_DIR = 'test-results/photo-books';
 
 test.describe(`Login & Navigate to Photo Books - ${targetRegion}`, () => {
-  // Increase timeout for this test as it involves multiple page navigations
-  test.setTimeout(120000);
+  // Increase timeout for this test as it involves multiple page navigations, uploads, and processing
+  test.setTimeout(300000); // 5 minutes
 
   test.beforeAll(() => {
     // Ensure results directory exists
@@ -190,6 +190,239 @@ test.describe(`Login & Navigate to Photo Books - ${targetRegion}`, () => {
     });
     console.log(`  Designer screenshot saved: ${designerScreenshotPath}`);
 
-    console.log(`\nSUCCESS: Completed full flow - Login → Photo Books → Product → Designer for ${targetRegion}`);
+    // Step 11: Click "Auto-Create My Book" button
+    console.log('Step 11: Clicking Auto-Create My Book...');
+
+    // Wait for designer page to fully load
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    await page.waitForTimeout(2000); // Extra wait for dynamic content/iframe
+
+    // The designer is inside an iframe - find it
+    const designerFrame = page.frameLocator('iframe').first();
+
+    // Find and click the Auto-Create button inside the iframe
+    const autoCreateButton = designerFrame.locator('.AddPhotosButton, div[role="button"]:has-text("Auto-Create My Book")').first();
+    await autoCreateButton.waitFor({ state: 'visible', timeout: 30000 });
+    await autoCreateButton.click();
+    console.log('  Auto-Create My Book clicked');
+
+    // Step 12: Click "Computer" to upload from local files
+    console.log('Step 12: Clicking Computer for file upload...');
+
+    const computerButton = designerFrame.locator('text=Computer').first();
+    await computerButton.waitFor({ state: 'visible', timeout: 15000 });
+    await computerButton.click();
+    console.log('  Computer option clicked');
+
+    // Step 13: Upload test images
+    console.log('Step 13: Uploading 21 test images...');
+
+    // Get all test image paths
+    const testImagesDir = path.join(__dirname, '../../data/test-images');
+    const imageFiles = fs.readdirSync(testImagesDir)
+      .filter(f => f.endsWith('.png'))
+      .map(f => path.join(testImagesDir, f));
+
+    console.log(`  Found ${imageFiles.length} images to upload`);
+
+    // Wait for file input inside iframe and upload all images
+    const fileInput = designerFrame.locator('input[type="file"]');
+    await fileInput.setInputFiles(imageFiles);
+    console.log('  Images uploaded');
+
+    // Wait for images to be processed
+    await page.waitForTimeout(2000);
+
+    // Take a screenshot after upload
+    const uploadScreenshotPath = path.join(RESULTS_DIR, `upload-${targetRegion}-${Date.now()}.png`);
+    await page.screenshot({
+      path: uploadScreenshotPath,
+      fullPage: false
+    });
+    console.log(`  Upload screenshot saved: ${uploadScreenshotPath}`);
+
+    // Step 14: Click "Do the magic" button
+    console.log('Step 14: Clicking Do the magic...');
+
+    const doTheMagicButton = designerFrame.locator('.smart-next-step-button, div[role="button"]:has-text("Do the magic")').first();
+    await doTheMagicButton.waitFor({ state: 'visible', timeout: 15000 });
+    await doTheMagicButton.click();
+    console.log('  Do the magic clicked');
+
+    // Step 15: Wait for processing to complete
+    console.log('Step 15: Waiting for magic processing...');
+
+    // Wait for the UserPhotoList to appear (indicates editor has loaded)
+    const userPhotoList = designerFrame.locator('.UserPhotoList');
+    await userPhotoList.waitFor({ state: 'visible', timeout: 120000 }); // 2 min timeout for processing
+    console.log('  Magic processing complete');
+
+    // Step 16: Verify editor loaded
+    console.log('Step 16: Verifying editor loaded...');
+
+    // Check for the photo list container
+    await expect(userPhotoList).toBeVisible();
+    console.log('  Editor loaded with photos arranged');
+
+    // Take a screenshot of the editor
+    const editorScreenshotPath = path.join(RESULTS_DIR, `editor-${targetRegion}-${Date.now()}.png`);
+    await page.screenshot({
+      path: editorScreenshotPath,
+      fullPage: false
+    });
+    console.log(`  Editor screenshot saved: ${editorScreenshotPath}`);
+
+    // Step 17: Click "Order" button
+    console.log('Step 17: Clicking Order button...');
+
+    const orderButton = designerFrame.locator('div[role="button"]:has-text("Order"), .Button:has-text("Order")').first();
+    await orderButton.waitFor({ state: 'visible', timeout: 15000 });
+    await orderButton.click();
+    console.log('  Order button clicked');
+
+    // Step 18: Handle validation popup
+    console.log('Step 18: Handling validation popup...');
+
+    // Wait for first checkbox and click it
+    const validationCheckbox = designerFrame.locator('[data-sid="validationPopupCheckBox"]');
+    await validationCheckbox.waitFor({ state: 'visible', timeout: 15000 });
+    await validationCheckbox.click();
+    console.log('  First checkbox clicked');
+
+    // Check if second checkbox exists (sometimes US shows 2 checkboxes)
+    const secondCheckbox = designerFrame.locator('text=I am aware that there are serious flaws');
+    const hasSecondCheckbox = await secondCheckbox.isVisible().catch(() => false);
+    if (hasSecondCheckbox) {
+      await secondCheckbox.click();
+      console.log('  Second checkbox clicked');
+    }
+
+    // Wait a moment for button to enable
+    await page.waitForTimeout(500);
+
+    // Click "Proceed anyway" button
+    const proceedButton = designerFrame.locator('[data-sid="validationPopupConfirm"]');
+    await proceedButton.waitFor({ state: 'visible', timeout: 5000 });
+    await proceedButton.click();
+    console.log('  Proceed anyway clicked');
+
+    // Wait for upsell page to load (navigates away from designer iframe)
+    console.log('  Waiting for upsell page to load...');
+    await page.waitForURL(/.*\/extras\/.*/, { timeout: 30000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    await page.waitForTimeout(1000); // Extra wait for dynamic content
+
+    // Step 19: Loop through upsell pages until we reach cart
+    console.log('Step 19: Handling upsell pages...');
+
+    let upsellCount = 0;
+    const maxUpsells = 15; // Safety limit
+
+    while (!page.url().includes('/cart') && upsellCount < maxUpsells) {
+      // Wait for page to fully load
+      await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+      await page.waitForTimeout(1000);
+
+      // Check if we've reached the cart
+      const currentUrl = page.url();
+      if (currentUrl.includes('/cart')) {
+        console.log('  Reached cart page');
+        break;
+      }
+
+      // Try to find and click "Keep As Is" button using multiple strategies
+      try {
+        // Try JavaScript click as some frameworks need it
+        const clicked = await page.evaluate(() => {
+          // Try multiple selectors
+          const selectors = [
+            'button.button_standard_addon--no',
+            'button:contains("Keep As Is")',
+            '[class*="button_standard_addon--no"]'
+          ];
+
+          // Also try finding by text content
+          const buttons = document.querySelectorAll('button');
+          for (const btn of buttons) {
+            if (btn.textContent?.includes('Keep As Is')) {
+              (btn as HTMLElement).click();
+              return true;
+            }
+          }
+          return false;
+        });
+
+        if (clicked) {
+          upsellCount++;
+          console.log(`  Skipped upsell ${upsellCount} (via JS click)`);
+          await page.waitForTimeout(1500); // Wait for page transition
+        } else {
+          console.log(`  No Keep As Is button found via JS`);
+          break;
+        }
+      } catch (e) {
+        // Button not found, might already be at cart or different page
+        console.log(`  Error finding button: ${e}`);
+        break;
+      }
+    }
+
+    console.log(`  Handled ${upsellCount} upsell pages`);
+
+    // Step 20: Verify cart page
+    console.log('Step 20: Verifying cart page...');
+
+    // Wait for cart page to load
+    await page.waitForURL(/.*\/cart.*/, { timeout: 30000 });
+    expect(page.url()).toContain('/cart');
+    console.log('  Cart page verified');
+
+    // Take a screenshot of the cart
+    const cartScreenshotPath = path.join(RESULTS_DIR, `cart-${targetRegion}-${Date.now()}.png`);
+    await page.screenshot({
+      path: cartScreenshotPath,
+      fullPage: true
+    });
+    console.log(`  Cart screenshot saved: ${cartScreenshotPath}`);
+
+    // Step 21: Click "Begin Checkout" button
+    console.log('Step 21: Clicking Begin Checkout...');
+    const beginCheckoutButton = page.locator('.cta_cart--begin-checkout');
+    await beginCheckoutButton.waitFor({ state: 'visible', timeout: 15000 });
+    await beginCheckoutButton.click();
+    console.log('  Begin Checkout clicked');
+
+    // Step 22: Wait for shipping page to load
+    console.log('Step 22: Waiting for shipping page...');
+    await page.waitForURL(/.*\/cart\/shipping.*/, { timeout: 20000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    expect(page.url()).toContain('/cart/shipping');
+    console.log('  Shipping page loaded');
+
+    // Take screenshot of shipping page
+    const shippingScreenshotPath = path.join(RESULTS_DIR, `shipping-${targetRegion}-${Date.now()}.png`);
+    await page.screenshot({ path: shippingScreenshotPath, fullPage: true });
+    console.log(`  Shipping screenshot saved: ${shippingScreenshotPath}`);
+
+    // Step 23: Click "Continue to Payment" button
+    console.log('Step 23: Clicking Continue to Payment...');
+    const continueToPaymentButton = page.locator('.button_shipping--continue-to-payment');
+    await continueToPaymentButton.waitFor({ state: 'visible', timeout: 15000 });
+    await continueToPaymentButton.click();
+    console.log('  Continue to Payment clicked');
+
+    // Step 24: Wait for payment page to load
+    console.log('Step 24: Waiting for payment page...');
+    await page.waitForURL(/.*\/cart\/payment.*/, { timeout: 20000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    expect(page.url()).toContain('/cart/payment');
+    console.log('  Payment page loaded');
+
+    // Take screenshot of payment page
+    const paymentScreenshotPath = path.join(RESULTS_DIR, `payment-${targetRegion}-${Date.now()}.png`);
+    await page.screenshot({ path: paymentScreenshotPath, fullPage: true });
+    console.log(`  Payment screenshot saved: ${paymentScreenshotPath}`);
+
+    console.log(`\nSUCCESS: Completed full flow - Login → Photo Books → Designer → Cart → Shipping → Payment for ${targetRegion}`);
   });
 });
