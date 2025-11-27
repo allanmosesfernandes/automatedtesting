@@ -13,6 +13,7 @@ import { Page, expect } from '@playwright/test';
 import { dismissKlaviyoPopup } from '../../helpers/popup-handler';
 import { getBaseUrl } from '../../config/environments';
 import { handleUpsellPages } from '../checkout.module';
+import { assertPageHealthy, assertElementVisible } from '../../helpers/health-check';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -50,6 +51,7 @@ export async function runPhotoCalendarFlow(
   // Step 1: Navigate to Photo Calendars category page
   console.log('Calendars Step 1: Navigating to Photo Calendars page...');
   await page.goto(`${baseUrl}/photo-gifts/photo-calendars/`, { timeout: 30000 });
+  await assertPageHealthy(page, 'Photo Calendars Category Page');
   await dismissKlaviyoPopup(page, 3000);
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
@@ -62,8 +64,12 @@ export async function runPhotoCalendarFlow(
   console.log('Calendars Step 2: Navigating to calendar product...');
   const productUrl = PRODUCT_URLS[region] || PRODUCT_URLS.GB;
   await page.goto(`${baseUrl}${productUrl}`, { timeout: 30000 });
+  await assertPageHealthy(page, 'Calendar Product Page');
   await dismissKlaviyoPopup(page, 3000);
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+
+  // Verify CTA button is visible
+  await assertElementVisible(page, '#cta-design-button', 'Create Your Calendar button');
 
   const productScreenshot = path.join(resultsDir, `calendars-product-${region}-${Date.now()}.png`);
   await page.screenshot({ path: productScreenshot, fullPage: true });
