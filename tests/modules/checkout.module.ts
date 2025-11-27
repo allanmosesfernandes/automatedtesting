@@ -16,7 +16,10 @@ export interface CheckoutResult {
 }
 
 /**
- * Handle upsell pages - skip all by clicking "Keep As Is"
+ * Handle upsell pages - skip all by clicking skip buttons
+ * Supports multiple button types:
+ * - "Keep As Is" (Photo Books)
+ * - "No, thank you" with id="no-change-prod" (Calendars)
  */
 export async function handleUpsellPages(page: Page): Promise<number> {
   console.log('Checkout: Handling upsell pages...');
@@ -35,14 +38,22 @@ export async function handleUpsellPages(page: Page): Promise<number> {
       break;
     }
 
-    // Try to find and click "Keep As Is" button
+    // Try to find and click skip button (various types)
     try {
       const clicked = await page.evaluate(() => {
+        // Try "No, thank you" button first (Calendars)
+        const noThanksBtn = document.getElementById('no-change-prod');
+        if (noThanksBtn) {
+          (noThanksBtn as HTMLElement).click();
+          return 'no-thanks';
+        }
+
+        // Try "Keep As Is" button (Photo Books)
         const buttons = document.querySelectorAll('button');
         for (const btn of buttons) {
           if (btn.textContent?.includes('Keep As Is')) {
             (btn as HTMLElement).click();
-            return true;
+            return 'keep-as-is';
           }
         }
         return false;
@@ -50,7 +61,7 @@ export async function handleUpsellPages(page: Page): Promise<number> {
 
       if (clicked) {
         upsellCount++;
-        console.log(`  Skipped upsell ${upsellCount}`);
+        console.log(`  Skipped upsell ${upsellCount} (${clicked})`);
         await page.waitForTimeout(1500);
       } else {
         break;
