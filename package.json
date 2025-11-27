@@ -26,7 +26,11 @@
     "test:cart:gb:headless": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts",
     "test:cart:us:headless": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/cart-checkout-flow.spec.ts",
     "test:login:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/login-and-navigate.spec.ts --headed",
-    "test:login:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/login-and-navigate.spec.ts --headed"
+    "test:login:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/login-and-navigate.spec.ts --headed",
+    "test:photobooks:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/photo-books-flow.spec.ts --headed",
+    "test:photobooks:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/photo-books-flow.spec.ts --headed",
+    "test:calendars:gb": "set TEST_REGION=GB&& npx playwright test tests/e2e/cart-checkout/photo-calendars-flow.spec.ts --headed",
+    "test:calendars:us": "set TEST_REGION=US&& npx playwright test tests/e2e/cart-checkout/photo-calendars-flow.spec.ts --headed"
   },
   "keywords": [
     "playwright",
