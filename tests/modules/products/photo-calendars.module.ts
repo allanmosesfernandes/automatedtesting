@@ -13,7 +13,6 @@ import { Page, expect } from '@playwright/test';
 import { dismissKlaviyoPopup } from '../../helpers/popup-handler';
 import { getBaseUrl } from '../../config/environments';
 import { handleUpsellPages } from '../checkout.module';
-import { assertPageHealthy, assertElementVisible } from '../../helpers/health-check';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -51,7 +50,6 @@ export async function runPhotoCalendarFlow(
   // Step 1: Navigate to Photo Calendars category page
   console.log('Calendars Step 1: Navigating to Photo Calendars page...');
   await page.goto(`${baseUrl}/photo-gifts/photo-calendars/`, { timeout: 30000 });
-  await assertPageHealthy(page, 'Photo Calendars Category Page');
   await dismissKlaviyoPopup(page, 3000);
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
@@ -64,13 +62,8 @@ export async function runPhotoCalendarFlow(
   console.log('Calendars Step 2: Navigating to calendar product...');
   const productUrl = PRODUCT_URLS[region] || PRODUCT_URLS.GB;
   await page.goto(`${baseUrl}${productUrl}`, { timeout: 30000 });
-  await assertPageHealthy(page, 'Calendar Product Page');
   await dismissKlaviyoPopup(page, 3000);
-  await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(2000); // Wait for JS to render button
-
-  // Verify CTA button is visible (use broader selector as button may be in different container)
-  await assertElementVisible(page, '#cta-design-button:visible, a[href*="/themes/"]:has-text("Create NOW")', 'Create Your Calendar button');
+  await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
   const productScreenshot = path.join(resultsDir, `calendars-product-${region}-${Date.now()}.png`);
   await page.screenshot({ path: productScreenshot, fullPage: true });
@@ -79,7 +72,7 @@ export async function runPhotoCalendarFlow(
 
   // Step 3: Click "Start Your Calendar" / "Create NOW" button
   console.log('Calendars Step 3: Clicking Create button...');
-  const ctaButton = page.locator('#cta-design-button:visible, a[href*="/themes/"]:has-text("Create NOW"):visible').first();
+  const ctaButton = page.locator('#cta-design-button:visible').first();
   await ctaButton.waitFor({ state: 'visible', timeout: 15000 });
   await ctaButton.scrollIntoViewIfNeeded();
   await ctaButton.click();

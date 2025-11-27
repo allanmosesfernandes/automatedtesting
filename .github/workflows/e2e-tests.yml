@@ -79,7 +79,7 @@ jobs:
         if: steps.test.outcome == 'failure'
         run: exit 1
 
-  # Notify on failure with 1-hour cooldown to prevent spam
+  # Aggregate results and notify
   notify-on-failure:
     name: Send Teams Notification
     needs: e2e-tests
@@ -87,41 +87,10 @@ jobs:
     if: failure()
 
     steps:
-      - name: Check notification cooldown
-        id: cooldown
-        uses: actions/cache@v4
-        with:
-          path: .last-notification
-          key: notification-cooldown-${{ github.run_id }}
-          restore-keys: notification-cooldown-
-
-      - name: Determine if should notify
-        id: should-notify
-        run: |
-          if [ -f .last-notification ]; then
-            LAST=$(cat .last-notification)
-            NOW=$(date +%s)
-            DIFF=$((NOW - LAST))
-            echo "Time since last notification: ${DIFF}s"
-            if [ $DIFF -lt 3600 ]; then
-              echo "Cooldown active (${DIFF}s < 3600s) - skipping notification"
-              echo "notify=false" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          fi
-          echo "Sending notification..."
-          echo "notify=true" >> $GITHUB_OUTPUT
-          date +%s > .last-notification
-
-      - name: Save cooldown timestamp
-        if: steps.should-notify.outputs.notify == 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: .last-notification
-          key: notification-cooldown-${{ github.run_id }}
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Send Teams notification
-        if: steps.should-notify.outputs.notify == 'true'
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
         run: |
@@ -137,14 +106,52 @@ jobs:
                 {"name": "Repository", "value": "${{ github.repository }}"},
                 {"name": "Workflow", "value": "${{ github.workflow }}"},
                 {"name": "Run Number", "value": "#${{ github.run_number }}"},
-                {"name": "Triggered", "value": "${{ github.event_name }}"},
-                {"name": "Time", "value": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}
+                {"name": "Triggered", "value": "${{ github.event_name }}"}
               ],
               "markdown": true
             }],
             "potentialAction": [{
               "@type": "OpenUri",
               "name": "View Failed Run",
+              "targets": [{
+                "os": "default",
+                "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }]
+            }]
+          }' "$TEAMS_WEBHOOK_URL"
+
+  # Notify on success (for testing - can be removed later)
+  notify-on-success:
+    name: Send Success Notification
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Send Teams success notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "00FF00",
+            "summary": "E2E Tests Passed",
+            "sections": [{
+              "activityTitle": "All E2E Cart Checkout Tests Passed",
+              "activitySubtitle": "Hourly automated test run",
+              "facts": [
+                {"name": "Repository", "value": "${{ github.repository }}"},
+                {"name": "Workflow", "value": "${{ github.workflow }}"},
+                {"name": "Run Number", "value": "#${{ github.run_number }}"},
+                {"name": "Tests", "value": "4/4 Passed"},
+                {"name": "Triggered", "value": "${{ github.event_name }}"}
+              ],
+              "markdown": true
+            }],
+            "potentialAction": [{
+              "@type": "OpenUri",
+              "name": "View Run Details",
               "targets": [{
                 "os": "default",
                 "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

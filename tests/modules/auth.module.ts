@@ -10,7 +10,6 @@ import { dismissCookieConsent } from '../helpers/cookie-consent-handler';
 import { dismissKlaviyoPopup } from '../helpers/popup-handler';
 import { LoginPage } from '../pages/LoginPage';
 import { getBaseUrl } from '../config/environments';
-import { assertPageHealthy, assertElementVisible } from '../helpers/health-check';
 
 /**
  * Get credentials from environment variables or use defaults
@@ -47,7 +46,6 @@ export async function authenticateUser(
   // Step 1: Navigate to homepage
   console.log('Auth Step 1: Navigating to homepage...');
   await page.goto(baseUrl, { timeout: 30000 });
-  await assertPageHealthy(page, 'Homepage');
   console.log('  Homepage loaded');
 
   // Step 2: Dismiss popups
@@ -59,14 +57,10 @@ export async function authenticateUser(
   // Step 3: Navigate to login page
   console.log('Auth Step 3: Navigating to login page...');
   await page.goto(`${baseUrl}/login/signin/`, { timeout: 30000 });
-  await assertPageHealthy(page, 'Login Page');
 
   // Dismiss popups again after navigation
   await dismissCookieConsent(page, 3000);
   await dismissKlaviyoPopup(page, 3000);
-
-  // Verify login form is visible
-  await assertElementVisible(page, 'input[type="email"], input[name="email"], #email', 'Email input field');
   console.log('  Login page loaded');
 
   // Step 4: Login

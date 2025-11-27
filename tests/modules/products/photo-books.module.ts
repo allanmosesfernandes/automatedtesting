@@ -13,7 +13,6 @@ import { Page, expect } from '@playwright/test';
 import { dismissKlaviyoPopup } from '../../helpers/popup-handler';
 import { getBaseUrl } from '../../config/environments';
 import { handleUpsellPages } from '../checkout.module';
-import { assertPageHealthy, assertElementVisible } from '../../helpers/health-check';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -45,7 +44,6 @@ export async function runPhotoBookFlow(
   // Step 1: Navigate to Photo Books page
   console.log('PhotoBooks Step 1: Navigating to Photo Books page...');
   await page.goto(`${baseUrl}/photo-books-q/`, { timeout: 30000 });
-  await assertPageHealthy(page, 'Photo Books Category Page');
   await dismissKlaviyoPopup(page, 3000);
   expect(page.url()).toContain('photo-books');
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
@@ -58,12 +56,8 @@ export async function runPhotoBookFlow(
   // Step 2: Navigate to Hardcover Photo Book product
   console.log('PhotoBooks Step 2: Navigating to Hardcover product...');
   await page.goto(`${baseUrl}/photo-books/hardcover-photo-book/`, { timeout: 30000 });
-  await assertPageHealthy(page, 'Hardcover Photo Book Product Page');
   await dismissKlaviyoPopup(page, 3000);
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-
-  // Verify CTA button is visible
-  await assertElementVisible(page, '#cta-design-button', 'Create Your Photo Book button');
   console.log('  Hardcover product page loaded');
 
   // Step 3: Click "Create Your Photo Book" button

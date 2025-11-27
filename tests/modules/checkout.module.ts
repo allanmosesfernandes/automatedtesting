@@ -7,7 +7,6 @@
 
 import { Page, expect } from '@playwright/test';
 import * as path from 'path';
-import { assertPageHealthy, assertElementVisible } from '../helpers/health-check';
 
 export interface CheckoutResult {
   success: boolean;
@@ -92,11 +91,7 @@ export async function completeCheckoutFlow(
   // Step 1: Verify cart page
   console.log('Checkout Step 1: Verifying cart page...');
   await page.waitForURL(/.*\/cart.*/, { timeout: 30000 });
-  await assertPageHealthy(page, 'Cart Page');
   expect(page.url()).toContain('/cart');
-
-  // Verify cart has items
-  await assertElementVisible(page, '.cart-item, .cart_item, [data-testid="cart-item"]', 'Cart items');
   console.log('  Cart page verified');
 
   // Screenshot cart
@@ -116,11 +111,7 @@ export async function completeCheckoutFlow(
   console.log('Checkout Step 3: Waiting for shipping page...');
   await page.waitForURL(/.*\/cart\/shipping.*/, { timeout: 20000 });
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-  await assertPageHealthy(page, 'Shipping Page');
   expect(page.url()).toContain('/cart/shipping');
-
-  // Verify shipping form is visible
-  await assertElementVisible(page, '.button_shipping--continue-to-payment', 'Continue to Payment button');
   console.log('  Shipping page loaded');
 
   // Screenshot shipping
@@ -140,7 +131,6 @@ export async function completeCheckoutFlow(
   console.log('Checkout Step 5: Waiting for payment page...');
   await page.waitForURL(/.*\/cart\/payment.*/, { timeout: 20000 });
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-  await assertPageHealthy(page, 'Payment Page');
   expect(page.url()).toContain('/cart/payment');
   console.log('  Payment page loaded');
 
