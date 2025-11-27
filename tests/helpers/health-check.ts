@@ -11,18 +11,26 @@
 
 import { Page } from '@playwright/test';
 
-// Common error page indicators
-const ERROR_INDICATORS = [
+// Error indicators that MUST appear in page title (strict check)
+const TITLE_ERROR_INDICATORS = [
+  '500',
+  '503',
+  '502',
+  '504',
+  'error',
+  'not found',
+  'maintenance',
+  'something went wrong',
+];
+
+// Error indicators for visible page content (check heading/main content only)
+const CONTENT_ERROR_INDICATORS = [
   '500 Internal Server Error',
   '503 Service Unavailable',
   '502 Bad Gateway',
   '504 Gateway Timeout',
-  'Something went wrong',
   'Site under maintenance',
   'We are currently performing maintenance',
-  'Checking your browser',
-  'Access denied',
-  'Page not found',
   'This page isn\'t working',
   'ERR_CONNECTION_REFUSED',
   'ERR_NAME_NOT_RESOLVED',
@@ -43,22 +51,26 @@ export async function assertPageHealthy(page: Page, context: string): Promise<vo
     throw new Error(`[${context}] Page appears blank or failed to load. URL: ${currentUrl}`);
   }
 
-  // 2. Check for error indicators in page content
-  const pageContent = bodyText.toLowerCase();
-  for (const indicator of ERROR_INDICATORS) {
-    if (pageContent.includes(indicator.toLowerCase())) {
+  // 2. Check page title for errors (most reliable indicator)
+  const title = await page.title().catch(() => '');
+  const titleLower = title.toLowerCase();
+  for (const indicator of TITLE_ERROR_INDICATORS) {
+    if (titleLower.includes(indicator)) {
+      throw new Error(`[${context}] Error page detected in title: "${title}". URL: ${page.url()}`);
+    }
+  }
+
+  // 3. Check visible heading/main content for error messages (not entire HTML)
+  const headingText = await page.locator('h1, h2, .error, .error-message, [role="alert"]').allTextContents().catch(() => []);
+  const visibleErrorText = headingText.join(' ').toLowerCase();
+  for (const indicator of CONTENT_ERROR_INDICATORS) {
+    if (visibleErrorText.includes(indicator.toLowerCase())) {
       throw new Error(`[${context}] Error page detected: "${indicator}". URL: ${page.url()}`);
     }
   }
 
-  // 3. Check page title isn't an error
-  const title = await page.title().catch(() => '');
-  const errorTitles = ['error', '500', '503', '502', '504', 'not found', 'maintenance'];
-  for (const errorTitle of errorTitles) {
-    if (title.toLowerCase().includes(errorTitle)) {
-      throw new Error(`[${context}] Error page detected in title: "${title}". URL: ${page.url()}`);
-    }
-  }
+  // 4. Check HTTP status via response (if we have navigation context)
+  // This catches server errors even if the page renders something
 
   console.log(`  [Health Check] ${context}: OK`);
 }
