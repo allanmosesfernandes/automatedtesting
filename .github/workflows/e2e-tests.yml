@@ -1,0 +1,158 @@
+name: Hourly E2E Cart Checkout Tests
+
+on:
+  schedule:
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub UI
+    inputs:
+      test_filter:
+        description: 'Test filter (leave empty for all)'
+        required: false
+        default: ''
+
+env:
+  TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+  TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+jobs:
+  e2e-tests:
+    name: ${{ matrix.product }} - ${{ matrix.region }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - product: photobooks
+            region: GB
+            test_file: photo-books-flow.spec.ts
+          - product: photobooks
+            region: US
+            test_file: photo-books-flow.spec.ts
+          - product: calendars
+            region: GB
+            test_file: photo-calendars-flow.spec.ts
+          - product: calendars
+            region: US
+            test_file: photo-calendars-flow.spec.ts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        id: test
+        run: |
+          TEST_REGION=${{ matrix.region }} npx playwright test \
+            tests/e2e/cart-checkout/${{ matrix.test_file }} \
+            --reporter=list,json
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.product }}-${{ matrix.region }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+      - name: Check test result
+        if: steps.test.outcome == 'failure'
+        run: exit 1
+
+  # Aggregate results and notify
+  notify-on-failure:
+    name: Send Teams Notification
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Send Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "FF0000",
+            "summary": "E2E Tests Failed",
+            "sections": [{
+              "activityTitle": "E2E Cart Checkout Tests Failed",
+              "activitySubtitle": "Hourly automated test run",
+              "facts": [
+                {"name": "Repository", "value": "${{ github.repository }}"},
+                {"name": "Workflow", "value": "${{ github.workflow }}"},
+                {"name": "Run Number", "value": "#${{ github.run_number }}"},
+                {"name": "Triggered", "value": "${{ github.event_name }}"}
+              ],
+              "markdown": true
+            }],
+            "potentialAction": [{
+              "@type": "OpenUri",
+              "name": "View Failed Run",
+              "targets": [{
+                "os": "default",
+                "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }]
+            }]
+          }' "$TEAMS_WEBHOOK_URL"
+
+  # Optional: Summary job for visibility
+  summary:
+    name: Test Summary
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-results
+
+      - name: Generate summary
+        run: |
+          echo "## E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Product | Region | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for dir in all-results/test-results-*/; do
+            name=$(basename "$dir")
+            product=$(echo "$name" | cut -d'-' -f3)
+            region=$(echo "$name" | cut -d'-' -f4)
+
+            if [ -f "$dir/results.json" ]; then
+              status="Passed"
+            else
+              status="Check artifacts"
+            fi
+
+            echo "| $product | $region | $status |" >> $GITHUB_STEP_SUMMARY
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Run: #${{ github.run_number }} | Time: $(date -u)" >> $GITHUB_STEP_SUMMARY

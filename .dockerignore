@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Test results (will be mounted as volume)
+test-results/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files (secrets should be passed as env vars)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+
+# Claude/Editor configs
+.claude/

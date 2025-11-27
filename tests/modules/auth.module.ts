@@ -11,11 +11,19 @@ import { dismissKlaviyoPopup } from '../helpers/popup-handler';
 import { LoginPage } from '../pages/LoginPage';
 import { getBaseUrl } from '../config/environments';
 
-// Default credentials
-const DEFAULT_CREDENTIALS = {
-  email: 'allan.fernandes@printerpix.co.uk',
-  password: 'All@in1234*',
-};
+/**
+ * Get credentials from environment variables or use defaults
+ * For CI/CD, set TEST_USER_EMAIL and TEST_USER_PASSWORD secrets
+ */
+function getCredentials() {
+  return {
+    email: process.env.TEST_USER_EMAIL || 'allan.fernandes@printerpix.co.uk',
+    password: process.env.TEST_USER_PASSWORD || 'All@in1234*',
+  };
+}
+
+// Default credentials (for backward compatibility)
+const DEFAULT_CREDENTIALS = getCredentials();
 
 export interface AuthResult {
   success: boolean;

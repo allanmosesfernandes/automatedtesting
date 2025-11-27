@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Run Photo Books tests
+  test-photobooks-gb:
+    build: .
+    environment:
+      - CI=true
+      - TEST_REGION=GB
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+    command: npx playwright test tests/e2e/cart-checkout/photo-books-flow.spec.ts
+    volumes:
+      - ./test-results:/app/test-results
+
+  test-photobooks-us:
+    build: .
+    environment:
+      - CI=true
+      - TEST_REGION=US
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+    command: npx playwright test tests/e2e/cart-checkout/photo-books-flow.spec.ts
+    volumes:
+      - ./test-results:/app/test-results
+
+  # Run Photo Calendars tests
+  test-calendars-gb:
+    build: .
+    environment:
+      - CI=true
+      - TEST_REGION=GB
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+    command: npx playwright test tests/e2e/cart-checkout/photo-calendars-flow.spec.ts
+    volumes:
+      - ./test-results:/app/test-results
+
+  test-calendars-us:
+    build: .
+    environment:
+      - CI=true
+      - TEST_REGION=US
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+    command: npx playwright test tests/e2e/cart-checkout/photo-calendars-flow.spec.ts
+    volumes:
+      - ./test-results:/app/test-results
+
+  # Run all tests at once
+  test-all:
+    build: .
+    environment:
+      - CI=true
+      - TEST_USER_EMAIL=${TEST_USER_EMAIL}
+      - TEST_USER_PASSWORD=${TEST_USER_PASSWORD}
+    volumes:
+      - ./test-results:/app/test-results
